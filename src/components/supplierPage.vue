@@ -9,22 +9,21 @@
       <div>
         <img :src="this.supplier.imgName" class="supImg">
       </div>
-      <div class="contentWrapper">
-        <span class="supName">{{this.supplier.name}}</span>
+      <div id="supplierInfo">
         <div class="contactWrapper">
+        <span class="supName">{{this.supplier.name}}</span>
           <span class="address">地址:</span>
           <span>{{this.supplier.address}}</span>
-        </div>
-        <div class="contactWrapper">
           <span class="contact">联系电话:</span>
           <span>{{this.supplier.telephone}}</span>
           <span>{{this.supplier.mobilePhone}}</span>
         </div>
-        <img :src="this.supplier.qrcode" class="qrCode">
-      </div>
+         <img :src="this.supplier.qrcode" class="qrCode">
+        </div>
     </div>
     <div class="detail">详情</div>
     <div v-html="this.supplier.description" class="detailImg"></div>
+    <div id="emptySpace"></div>
   </div>
 </template>
 
@@ -48,6 +47,14 @@
 </script>
 
 <style scoped>
+  *{
+    margin:0;
+    padding: 0;
+  }
+  #supplierInfo{
+    text-align: left;
+    width: 100%;
+  }
   #wrapper{
     margin:0;
     padding:0;
@@ -60,6 +67,7 @@
     width:100%;
   }
   .contactWrapper{
+    display: inline-block;
     width:60%;
   }
   .contentWrapper{
@@ -99,9 +107,14 @@
   }
 
   .qrCode{
-    width:20%;
-    /*float: right;*/
+    width:25%;
+    position: relative;
+    right: 0;
+    top:0;
   }
-
+  #emptySpace{
+    height: 100px;
+    width: 100%;
+  }
 
 </style>

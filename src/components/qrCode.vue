@@ -2,7 +2,7 @@
    <div id="wrapper">
       <div class="frame">
         <div class="frameContent">
-          <img class="qrCode-img" src="../assets/qrCode.png"  alt="qrCode.png" />
+          <img class="qrCode-img" src="../assets/qrcode.jpg"  alt="qrcode.jpg" />
           <span class="qrCode-word">进入<span class="hightLine-word">【百宝箱】</span>领取奖品吧</span>
         </div>
         <img class="frame-img" src="../assets/frame.png"  alt="frame.png" />
@@ -15,7 +15,7 @@
   name: 'QRCode',
   data () {
     return {
-      
+
 
     }
   }
@@ -26,10 +26,11 @@
 <style scoped>
 #wrapper{
     width:100%;
-    position:fixed;
+    position:absolute;
+    top:80%;
     left:0;
     right:0;
-    bottom:2px;
+
 }
 
 .frame-img{
@@ -42,10 +43,10 @@
 
 .frameContent{
     width:100%;
-    position: absolute; 
-    left: 50%; 
+    position: absolute;
+    left: 50%;
     top: 50%;
-    transform: translate(-50%, -50%); 
+    transform: translate(-50%, -50%);
 }
 
 .qrCode-img{

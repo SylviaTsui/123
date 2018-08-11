@@ -11,10 +11,11 @@
         </div>
         <div class="right">
           <span class="status" v-if="item.type >= 4">已入账</span>
-          <span class="status" v-if="item.type == 2 && item.status == 0">未领取</span>
-          <span class="status" v-if="item.type == 2 && item.status == 1">已领取</span>
-          <span class="status" v-if="item.type == 3 && item.status == 0">未使用</span>
-          <span class="status" v-if="item.type == 3 && item.status == 1">已使用</span>
+          <span class="status" v-if="item.type === 2 && item.status === 0">未领取</span>
+          <span class="status" v-if="item.type === 2 && item.status === 1 && item.deliverInfo.sentStatus === 0">未配送</span>
+          <span class="status" v-if="item.type === 2 && item.status === 1 && item.deliverInfo.sentStatus === 1">已配送</span>
+          <span class="status" v-if="item.type === 3 && item.status === 0">未使用</span>
+          <span class="status" v-if="item.type === 3 && item.status === 1">已使用</span>
 
         </div>
         <div class="prize-content">
@@ -64,7 +65,6 @@
         mobileNumber: '',
         address: '',
         //自提
-        region: '广东省 广州市 海珠区',
         supplierId: null,
         supplier: '',
         id: null,

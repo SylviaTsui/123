@@ -4,7 +4,7 @@
     <div>
       <h3 class="prizeName">{{this.prizeDto.prizeName}}</h3>
       <div class="priceWrapper">
-        <span class="lable">价格:</span>
+        <span class="lable">价值:</span>
         <span>{{this.prizeDto.price}}</span>
       </div>
     </div>
@@ -28,7 +28,8 @@
       </div>
     </div>
     <div class="detail">详情</div>
-    <div v-html="prizeDto.details" class="detailImg"></div>
+    <div v-html="prizeDto.details" class="details"></div>
+    <div id="emptySpace"></div>
   </div>
 </template>
 
@@ -45,15 +46,6 @@
     },
     methods: {
       goSupPage () {
-        // let str = {
-        //   goSupName: this.goSupName,
-        //   goSupImg: this.goSupImg,
-        //   goSupAddress: this.goSupAddress,
-        //   goSupTel: this.goSupTel,
-        //   goSupMobile: this.goSupMobile,
-        //   goSupQRCode: this.goSupQRCode,
-        //   goSupDetail: this.goSupDetail,
-        // }
         console.log("goSupPage 入参: "+JSON.stringify(this.supplier));
         this.$router.push({
           name: 'supplierPage',
@@ -160,14 +152,18 @@
     margin-bottom: 20px;
   }
 
-  .detailImg {
+  .details {
     width: 100%;
     overflow-x: hidden;
     overflow-y: scroll;
   }
 
-  .detailImg *{
+  .details *{
     max-width: 100vw;
+  }
+  #emptySpace{
+    height: 100px;
+    width: 100%;
   }
 
   .arrow {

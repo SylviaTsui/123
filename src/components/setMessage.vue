@@ -31,6 +31,7 @@
     <section id="takeBySelf" v-show="showTakeBySelf">
       <van-field v-model="formData.receiverName" v-bind:disabled="isDisabledCase" placeholder="姓名"/>
       <van-field v-model="formData.mobile" v-bind:disabled="isDisabledCase" placeholder="手机号码"/>
+
       <van-field v-model="formData.region" v-bind:disabled="isDisabledCase" readonly placeholder="选择地址"
                  @click="regionOnClick"/>
       <van-field v-model="formData.supplierName"  @click="supplierShow=true" readonly placeholder="选择自提点"/>
@@ -326,7 +327,7 @@
         this.supplierColumns.push({name: '请选择自提点', disabled: true})
         for (let i = 0; i < supplierData.length; i++) {
           this.supplierColumns.push({
-            name: supplierData[i].area,
+            name: supplierData[i].name,
             id: supplierData[i].id,
             callback: this.supplierOnClick
           })
@@ -398,6 +399,18 @@
         }
         this.regionColumns.load = false
         this.regionColumnsShow = false
+      },
+      async getSupplierInfo(){
+        await this.$axios({
+          method: 'get',
+          url: this.url + '/supplier/' + this.deliverInfo.supplierId,
+        }).then((res) => {
+          this.formData.supplierName = res.data.data.area
+          this.formData.region = res.data.data.address
+          console.log("formData.supplierName:   "+this.formData.supplierName+"  formData.region:"+this.formData.region)
+        }).catch((err) => {
+          console.log('供应商信息加载失败: ' + err)
+        })
       }
     },
 
@@ -407,23 +420,14 @@
       console.log('setMessage入参: ' + JSON.stringify(this.deliverInfo))
 
       if (this.deliverInfo != null) {
-        this.isDisabledCase = true
+        this.isDisabledCase = true;
         //判断快递还是自提
         if (this.deliverInfo.type === 2) {
-          this.showExpress = false
-          this.showTakeBySelf = true
-          this.formData.receiverName = this.deliverInfo.receiverName
-          this.formData.mobile = this.deliverInfo.mobileNumber
-          await this.$axios({
-            method: 'get',
-            url: this.url + '/supplier/' + this.deliverInfo.supplierId,
-          }).then((res) => {
-            this.formData.supplierName = res.data.data.area
-            this.formData.region = res.data.data.address
-            console.log("formData.supplierName:   "+this.formData.supplierName+"  formData.region:"+this.formData.region)
-          }).catch((err) => {
-            console.log('供应商信息加载失败: ' + err)
-          })
+          this.showExpress = false;
+          this.showTakeBySelf = true;
+          this.formData.receiverName = this.deliverInfo.receiverName;
+          this.formData.mobile = this.deliverInfo.mobileNumber;
+          await this.getSupplierInfo();
         } else if (this.deliverInfo.type === 1) {
           this.showExpress = true
           this.showTakeBySelf = false

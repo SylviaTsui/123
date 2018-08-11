@@ -1,21 +1,31 @@
 <template>
   <div id="wrapper">
     <img id='bgimg' src="../assets/new.png"/>
-    <div v-show="showPage">
-      <div id="userwrapper" v-if="this.isSubscibe == 1">
-        <div class="left">
-          <img class="user-pic" :src="this.userInfo.headImgUrl" alt="user.png"/>
-          <span class="user-name">{{this.userInfo.nickname}}</span>
-          <!--<img class="user-pic" src='../assets/user.png'  alt="user.png" />-->
-          <!--<span class="user-name">用户名</span>-->
-        </div>
-        <div class="right">
-          <img class="flower" src="../assets/flower.png" alt="flower.png"/>
-          <span class="x-symble">x</span>
-          <!--<span class="flower-number">x</span>-->
-          <span class="flower-number">{{this.userInfo.flower}}</span>
-        </div>
+    <div id="userwrapper" v-if="this.isSubscibe == 1">
+      <div class="left">
+        <img class="user-pic" :src="this.userInfo.headImgUrl" alt="user.png"/>
+        <span class="user-name">{{this.userInfo.nickname}}</span>
+        <!--<img class="user-pic" src='../assets/user.png'  alt="user.png" />-->
+        <!--<span class="user-name">用户名</span>-->
       </div>
+      <div class="right">
+        <img class="flower" src="../assets/flower.png" alt="flower.png"/>
+        <span class="x-symble">x</span>
+        <!--<span class="flower-number">x</span>-->
+        <span class="flower-number">{{this.userInfo.flower}}</span>
+      </div>
+    </div>
+
+    <div class="footer" v-if="this.isSubscibe == 1">
+      <span @click="feedback">意见反馈</span>
+      <span>|</span>
+      <span @click="rule">活动规则</span>
+      <span>|</span>
+      <span @click="flowerUsage">小红花用途</span>
+    </div>
+
+
+    <div v-show="showPage">
       <div class="nativePrize">
         <img :src="imgUrl + prize.imgName" v-if="this.prize.type != 3"/>
       </div>
@@ -37,48 +47,38 @@
         <button class="detailL" v-if="this.prize.type >= 3" @click="goDetail">查看详情</button>
       </div>
 
-      <QRCode v-if="this.isSubscibe == 0"/>
-      <div class="footer" v-if="this.isSubscibe == 1">
-        <span @click="feedback">意见反馈</span>
-        <span>|</span>
-        <span @click="rule">活动规则</span>
-        <span>|</span>
-        <span @click="flowerUsage">小红花用途</span>
-      </div>
-      <van-actionsheet v-model="showFeedBack" :actions="actionFeedBack">
+      <QRCode class="qrCode" v-if="this.isSubscibe == 0"/>
 
-        <div>
 
-      <textarea rows="8" cols="45" placeholder="请留下您的宝贵意见和建议，我们将努力改进~" v-model="comment" class="textInput one">
-
-      </textarea>
-          <textarea rows="3" cols="45" placeholder="请留下您的邮箱或者微信号，以使我们回复你~" v-model="contact" class="textInput twi">
-
-      </textarea>
-          <van-button type="default" plain size="large" v-if='this.contact == "" || this.comment == "" '>提交</van-button>
-          <van-button type="primary" size="large" v-if='this.contact != "" && this.comment != "" ' @click="sendComment">
-            提交
-          </van-button>
-        </div>
-
-      </van-actionsheet>
-      <van-actionsheet v-model="showRule" :actions="actionRule" class="rule">
-        <p>全城找“爱”互娱触码活动规则：</p>
-        <p> 1.每个微信每天有一次抽奖机会。</p>
-        <p> 2.参与者可百分百中奖，奖品包括优质实物产品、精选体验服务及电子奖品三类。</p>
-        <p> 3.获奖用户可进入官微“百宝箱”查阅奖品信息和领取奖品。</p>
-        <p> 4.广州浚雷智能科技有限公司拥有活动的最终解释权。</p>
-      </van-actionsheet>
-      <van-actionsheet v-model="showFlowerUsage" :actions="actionFlower" class="flowerRule">
-        <p>小红花可以兑换实物、优惠券、抽奖次数等。</p>
-        <p>（程序猿小哥哥正在紧张的开发ing）</p>
-      </van-actionsheet>
     </div>
-
+    <van-actionsheet v-model="showFeedBack" :actions="actionFeedBack">
+      <div>
+      <textarea rows="8" cols="45" placeholder="请留下您的宝贵意见和建议，我们将努力改进~" v-model="comment" class="textInput one">
+      </textarea>
+        <textarea rows="3" cols="45" placeholder="请留下您的邮箱或者微信号，以使我们回复你~" v-model="contact" class="textInput twi">
+      </textarea>
+        <van-button type="default" plain size="large" v-if='this.contact == "" || this.comment == "" '>提交</van-button>
+        <van-button type="primary" size="large" v-if='this.contact != "" && this.comment != "" ' @click="sendComment">
+          提交
+        </van-button>
+      </div>
+    </van-actionsheet>
+    <van-actionsheet v-model="showRule" :actions="actionRule" class="rule">
+      <p>全城找“爱”互娱触码活动规则：</p>
+      <p> 1.每个微信每天有一次抽奖机会。</p>
+      <p> 2.参与者可百分百中奖，奖品包括优质实物产品、精选体验服务及电子奖品三类。</p>
+      <p> 3.获奖用户可进入官微“百宝箱”查阅奖品信息和领取奖品。</p>
+      <p> 4.广州浚雷智能科技有限公司拥有活动的最终解释权。</p>
+    </van-actionsheet>
+    <van-actionsheet v-model="showFlowerUsage" :actions="actionFlower" class="flowerRule">
+      <p>小红花可以兑换实物、优惠券、抽奖次数等。</p>
+      <p>（程序猿小哥哥正在紧张的开发ing）</p>
+    </van-actionsheet>
     <div id="smileFace" v-show="showSmileFace">
       <img src="../assets/smile.png" class="smile">
       <div class="buttonWrapper">
-        <button @click="goPrizeList">我的奖品</button>
+        <button @click="goPrizeList" v-if="this.isSubscibe == 1">我的奖品</button>
+        <QRCode class="qrCode" v-if="this.isSubscibe == 0"/>
       </div>
     </div>
 
@@ -268,7 +268,7 @@
     line-height: 60px;
     position: absolute;
     top: 0;
-    z-index: 10;
+    z-index: 999;
     background: white;
     display: flex;
     justify-content: center;
@@ -348,24 +348,6 @@
     vertical-align: middle;
   }
 
-  .logo {
-
-    width: 9vw;
-
-    vertical-align: middle;
-
-  }
-
-  .logoWrapper {
-
-    position: fixed;
-
-    top: 10px;
-
-    left: 10px;
-
-  }
-
   .logoWrapper span {
 
     color: white;
@@ -414,6 +396,7 @@
 
     align-items: center;
 
+
   }
 
   .nativePrize img {
@@ -425,7 +408,8 @@
     margin: auto;
     width: 100%;
     z-index: 999;
-
+    animation: myfirst 1s;
+    -webkit-animation: myfirst 1s; /* Safari 与 Chrome */
   }
 
   .smile {
@@ -498,6 +482,61 @@
     top: 98%;
     transform: translate(-50%, -98%);
     font-size: 12px;
+  }
+
+  @keyframes myfirst {
+    0% {
+      width: 10%;
+      transform: translate(0, -60%);
+    }
+    45% {
+      width: 30%;
+      transform: translate(0, 0);
+    }
+    65% {
+      width: 50%;
+      transform: translate(0, -70%);
+    }
+    75% {
+      width: 50%;
+      transform: translate(0, -40%);
+    }
+    90% {
+      width: 70%;
+      transform: translate(0, -60%);
+    }
+    100% {
+      width: 100%;
+      transform: translate(0, 0);
+    }
+  }
+
+  @-webkit-keyframes myfirst /* Safari 与 Chrome */
+  {
+    0% {
+      width: 10%;
+      transform: translate(0, -60%);
+    }
+    45% {
+      width: 30%;
+      transform: translate(0, 0);
+    }
+    65% {
+      width: 50%;
+      transform: translate(0, -70%);
+    }
+    75% {
+      width: 50%;
+      transform: translate(0, -40%);
+    }
+    90% {
+      width: 70%;
+      transform: translate(0, -60%);
+    }
+    100% {
+      width: 100%;
+      transform: translate(0, 0);
+    }
   }
 
   /*!*屏幕大于指定尺寸改变字体大小*!*/
