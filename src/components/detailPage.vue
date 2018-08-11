@@ -1,111 +1,179 @@
 <template>
   <div id="wrapper">
-
-    <img :src="this.goPrizeImg" class="prizeImg">
-    <img src="../assets/prize/handWashing.png" class="prizeImg">
+    <img :src="this.prizeDto.prizeImg" class="prizeImg">
     <div>
-       <h3 class="prizeName">{{this.goPrizeName}}</h3>
-      <h3>礼品名</h3>
-       <span>价格：</span>
-       <span>{{this.goPrizePrice}}</span>
-      <span>100</span>
+      <h3 class="prizeName">{{this.prizeDto.prizeName}}</h3>
+      <div class="priceWrapper">
+        <span class="lable">价格:</span>
+        <span>{{this.prizeDto.price}}</span>
+      </div>
     </div>
-    <div class="supData">
+
+    <div class="supData" @click="goSupPage">
+      <img src="../assets/arrow.png" class="arrow">
       <div>
-       <img :src="this.goSupImg" class="supImg">
-       <img src="../assets/prize/one.png" class="supImg">
+        <img :src="this.supplier.imgName" class="supImg">
       </div>
       <div class="contentWrapper">
-         <span>{{this.goSupName}}</span>
-         <span class="supName">供应商名称</span>
-         <span>地址</span>
-         <span>{{this.goSupAddress}}</span>
-         <span>什么街道什么路</span>
-         <span>联系电话</span>
-         <span>{{this.goSupTel}}</span>
-         <span>{{this.goSupMobile}}</span>
-         <span>253416515</span>
-         <span>253412651521</span>
+        <span class="supName">{{this.supplier.name}}</span>
+        <div class="contactWrapper">
+          <span class="address">地址:</span>
+          <span>{{this.supplier.address}}</span>
+        </div>
+        <div class="contactWrapper">
+          <span class="contact">联系电话:</span>
+          <span>{{this.supplier.telephone}}</span>
+          <span>{{this.supplier.mobilePhone}}</span>
+        </div>
       </div>
     </div>
-    <div v-html="goSupDetail"></div>
+    <div class="detail">详情</div>
+    <div v-html="prizeDto.details" class="detailImg"></div>
   </div>
 </template>
 
 <script>
   export default {
-  name: 'DetailPage',
-  data () {
-    return {
-        url:"http://bs.tianaishijie.com/userService",
-        test:null,
-        // supplierName:this.$route.params.supplierName,
-        // price:this.$route.params.price,
-        // img:this.$route.params.img,
-        // prizeName:this.$route.params.prizeName
-
-      // prizeName:this.$route.params.prizeName,
-        // prizePrice:this.$route.params.prizePrice,
-        // PrizeImg:this.$route.params.PrizeImg,
-        // supName :this.$route.params.supName,
-        // supImg :this.$route.params.supImg,
-        // adress :this.$route.params.adress,
-        // tel :this.$route.params.tel,
-        // mobile :this.$route.params.mobile,
-        // detail :this.$route.params.detail,
-
-
-
-      goPrizeName:this.$route.params.goPrizeName,
-      goPrizePrice:this.$route.params.goPrizePrice,
-      goPrizeImg:this.$route.params.goPrizeImg,
-      goSupName:this.$route.params.goSupName,
-      goSupImg:this.$route.params.goSupImg,
-      goSupAddress: this.$route.params.goSupAddress,
-      goSupTel:this.$route.params.goSupTel,
-      goSupMobile:this.$route.params.goSupMobile,
-      goSupDetail:this.$route.params.goSupDetail,
-     }
-  },
-  methods:{
-
-   },
-   mounted(){
-      console.log(this.$route.params)
-   }
+    name: 'DetailPage',
+    data () {
+      return {
+        url: 'http://bs.tianaishijie.com/userService/',
+        imgUrl: 'http://oss.tianaishijie.com/',
+        prizeDto: {},
+        supplier: {}
+      }
+    },
+    methods: {
+      goSupPage () {
+        // let str = {
+        //   goSupName: this.goSupName,
+        //   goSupImg: this.goSupImg,
+        //   goSupAddress: this.goSupAddress,
+        //   goSupTel: this.goSupTel,
+        //   goSupMobile: this.goSupMobile,
+        //   goSupQRCode: this.goSupQRCode,
+        //   goSupDetail: this.goSupDetail,
+        // }
+        console.log("goSupPage 入参: "+JSON.stringify(this.supplier));
+        this.$router.push({
+          name: 'supplierPage',
+          params: {data:this.supplier}
+        });
+      }
+    },
+    created () {
+      this.prizeDto = this.$route.params.data;
+      console.log("入参:"+JSON.stringify(this.prizeDto));
+      this.$axios({
+        method: 'get',
+        url: this.url + '/supplier/' + this.prizeDto.supplierId
+      })
+        .then((res) => {
+          this.supplier = res.data.data
+          this.supplier.imgName = this.imgUrl + this.supplier.imgName
+        })
+        .catch((err) => {
+          console.log('获取供应商信息错误: ' + err)
+        })
+    }
   }
 </script>
 
 <style scoped>
-  #wrapper{
-    margin:0;
-    padding:0;
-  }
-.prizeImg{
-  width:100vw;
-}
-
-  .supImg{
-    width:20%;
-    border-radius:5px;
-    position:absolute;
-    left:0;
+  #wrapper {
+    margin: 0;
+    padding: 0;
   }
 
-  .supData{
-    border:1px solid;
-    height:15vh;
+  .prizeImg {
+    width: 100vw;
   }
-.contentWrapper{
-  width:80vw;
-  position:absolute;
-  right:0;
-  text-align: left;
-}
-  .supName{
+
+  .priceWrapper {
+    text-align: left;
+    margin-bottom: 20px;
+    padding-left: 20px;
+    font-size: 10px;
+    color: red;
+  }
+
+  .lable {
+    color: gray;
+  }
+
+  .address, .contact {
+    color: gray;
+  }
+
+  .supImg {
+    width: 20%;
+    border-radius: 5px;
+    position: absolute;
+    left: 20px;
+    /*margin-right: 5px;*/
+  }
+
+  .supData {
+    height: 13vh;
+    position: relative;
+    border-top: 1px solid rgb(242, 242, 242);
+    padding-top: 10px;
+    padding-right: 50px;
+  }
+
+  .contentWrapper {
+    font-size: 12px;
+    width: 75vw;
+    position: absolute;
+    right: 0;
+    text-align: left;
+    padding-left: 20px;
 
   }
-  .prizeName{
 
+  .supName {
+    display: block;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  .prizeName {
+    text-align: left;
+    margin: 0;
+    padding-left: 20px;
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+
+  .supData {
+    padding-left: 20px;
+  }
+
+  .detail {
+    width: 100vw;
+    height: 40px;
+    background: rgb(242, 242, 242);
+    color: gray;
+    font-size: 14px;
+    line-height: 40px;
+    margin-bottom: 20px;
+  }
+
+  .detailImg {
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+  }
+
+  .detailImg *{
+    max-width: 100vw;
+  }
+
+  .arrow {
+    width: 15px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
   }
 </style>

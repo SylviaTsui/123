@@ -77,7 +77,7 @@
       let userToken = this.$cookies.get('USER_TOKEN')
       console.log('get user token __' + userToken)
       if (userToken == null || userToken == '') {
-         // await this.getToken(state)
+          await this.getToken(state)
       }
       console.log(this.$route.query)
       this.params = {

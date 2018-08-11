@@ -6,7 +6,7 @@ import router from './router'
 import axios from 'axios'
 import VueCookies from 'vue-cookies'
 import "babel-polyfill"
-import { Field,Tab, Tabs,Picker, Actionsheet, Button, NavBar,Icon,Area,Cell,CellGroup,Toast} from 'vant';
+import { Field,Tab, Tabs,Picker, Actionsheet, Button, NavBar,Icon,Area,Cell,CellGroup,Toast, RadioGroup, Radio} from 'vant';
 
 Vue.use(Field)
    .use(Tab).use(Tabs)
@@ -18,6 +18,8 @@ Vue.use(Field)
    .use(Area)
    .use(Cell).use(CellGroup)
    .use(Toast)
+   .use(RadioGroup)
+   .use(Radio)
 
 Vue.config.productionTip = false
 Vue.prototype.$axios = axios

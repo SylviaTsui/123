@@ -1,73 +1,86 @@
 <template>
-  <div>
-    <div id="userwrapper" v-if="this.isSubscibe == 1">
-      <div class="left">
-        <img class="user-pic" :src="this.userInfo.headImgUrl" alt="user.png"/>
-        <span class="user-name">{{this.userInfo.nickname}}</span>
-        <!--<img class="user-pic" src='../assets/user.png'  alt="user.png" />-->
-        <!--<span class="user-name">用户名</span>-->
-      </div>
-      <div class="right">
-        <img class="flower" src="../assets/flower.png" alt="flower.png"/>
-        <span class="x-symble">x</span>
-        <!--<span class="flower-number">x</span>-->
-        <span class="flower-number">{{this.userInfo.flower}}</span>
-      </div>
-    </div>
-
+  <div id="wrapper">
     <img id='bgimg' src="../assets/new.png"/>
-
-
-    <div class="prize">
-
-      <img :src="prize"/>
-
-    </div>
-
-    <div class="buttonWrapper" v-if='this.isSubscibe == 1'>
-      <button class="detailS" v-if="this.type == 2" @click="goDetail">查看详情</button>
-      <button class="getPrize" v-if="this.type == 2" @click="goPrize">领取</button>
-      <button class="myPrize" v-if="this.type == 2 || this.type == 3" @click="goBaiBaoXiang">我的奖品</button>
-      <button class="detailL" v-if="this.type >= 3" @click="goDetail">查看详情</button>
-    </div>
-
-    <QRCode v-if="this.isSubscibe == 0"/>
-    <div class="footer" v-if="this.isSubscibe == 1">
-      <span @click="feedback">意见反馈</span>
-      <span>|</span>
-      <span @click="rule">活动规则</span>
-      <span>|</span>
-      <span @click="flowerUsage">小红花用途</span>
-    </div>
-    <van-actionsheet v-model="showFeedBack" :actions="actionFeedBack">
-
-      <div>
-
-      <textarea rows="8" cols="45" placeholder="请留下您的宝贵意见和建议，我们将努力改进~" v-model="comment">
-
-      </textarea>
-        <textarea rows="3" cols="45" placeholder="请留下您的邮箱或者微信号，以使我们回复你~" v-model="contact">
-
-      </textarea>
-        <van-button type="default" plain size="large" v-if='this.contact == "" || this.comment == "" '>提交</van-button>
-        <van-button type="primary" size="large" v-if='this.contact != "" && this.comment != "" ' @click="sendComment">
-          提交
-        </van-button>
+    <div v-show="showPage">
+      <div id="userwrapper" v-if="this.isSubscibe == 1">
+        <div class="left">
+          <img class="user-pic" :src="this.userInfo.headImgUrl" alt="user.png"/>
+          <span class="user-name">{{this.userInfo.nickname}}</span>
+          <!--<img class="user-pic" src='../assets/user.png'  alt="user.png" />-->
+          <!--<span class="user-name">用户名</span>-->
+        </div>
+        <div class="right">
+          <img class="flower" src="../assets/flower.png" alt="flower.png"/>
+          <span class="x-symble">x</span>
+          <!--<span class="flower-number">x</span>-->
+          <span class="flower-number">{{this.userInfo.flower}}</span>
+        </div>
       </div>
-    </van-actionsheet>
-    <van-actionsheet v-model="showRule" :actions="actionRule">
-      <p>这是活动规则这是活动规则这是活动规则这是活动规则这是活动规
-        则这是活动规则这是活动规则这是活动规则这是活动规则这是活动规则
-        这是活动规则这是活动规则这是活动规则这是活动规则这是活动规则这
-        是活动规则这是活动规则这是活动规则这是活动规则这是活动规则这是活动规则</p>
-    </van-actionsheet>
-    <van-actionsheet v-model="showFlowerUsage" :actions="actionFlower">
-      <p>什么是小红花什么是小红花什么是小红花什么是小红花什么是小红花什么是小红花
-        什么是小红花什么是小红花什么是小红花什么是小红花什么是小红花什么是小红花什么是小红花
-        什么是小红花什么是小红花什么是小红花什么是小红花什么是小红花什么是小红花什么是小红花
-        什么是小红花什么是小红花什么是小红花什么是小红花什么是小红花什么是小红花什么是小红花
-        什么是小红花什么是小红花什么是小红花什么是小红花什么是小红花什么是小红花</p>
-    </van-actionsheet>
+      <div class="nativePrize">
+        <img :src="imgUrl + prize.imgName" v-if="this.prize.type != 3"/>
+      </div>
+      <div class="couponPrize">
+        <div id="couponBox" v-if="this.prize.type == 3">
+          <img :src="imgUrl + prize.imgName" id="couponImg"/>
+          <div id="couponBoxTextArea">
+            <h3 id="supplierName">{{ this.prize.supplier.name}}</h3>
+            <h5 id="prizeName">{{ this.prize.name}}</h5>
+          </div>
+          <img :src="imgUrl + prize.couponTemplateImgUri" id="couponTemplateImg"/>
+        </div>
+      </div>
+
+      <div class="buttonWrapper" v-if='this.isSubscibe == 1'>
+        <button class="detailS" v-if="this.prize.type == 2" @click="goDetail">查看详情</button>
+        <button class="getPrize" v-if="this.prize.type == 2" @click="goPrize">领取</button>
+        <button class="myPrize" v-if="this.prize.type == 2 || this.prize.type == 3" @click="goPrizeList">我的奖品</button>
+        <button class="detailL" v-if="this.prize.type >= 3" @click="goDetail">查看详情</button>
+      </div>
+
+      <QRCode v-if="this.isSubscibe == 0"/>
+      <div class="footer" v-if="this.isSubscibe == 1">
+        <span @click="feedback">意见反馈</span>
+        <span>|</span>
+        <span @click="rule">活动规则</span>
+        <span>|</span>
+        <span @click="flowerUsage">小红花用途</span>
+      </div>
+      <van-actionsheet v-model="showFeedBack" :actions="actionFeedBack">
+
+        <div>
+
+      <textarea rows="8" cols="45" placeholder="请留下您的宝贵意见和建议，我们将努力改进~" v-model="comment" class="textInput one">
+
+      </textarea>
+          <textarea rows="3" cols="45" placeholder="请留下您的邮箱或者微信号，以使我们回复你~" v-model="contact" class="textInput twi">
+
+      </textarea>
+          <van-button type="default" plain size="large" v-if='this.contact == "" || this.comment == "" '>提交</van-button>
+          <van-button type="primary" size="large" v-if='this.contact != "" && this.comment != "" ' @click="sendComment">
+            提交
+          </van-button>
+        </div>
+
+      </van-actionsheet>
+      <van-actionsheet v-model="showRule" :actions="actionRule" class="rule">
+        <p>全城找“爱”互娱触码活动规则：</p>
+        <p> 1.每个微信每天有一次抽奖机会。</p>
+        <p> 2.参与者可百分百中奖，奖品包括优质实物产品、精选体验服务及电子奖品三类。</p>
+        <p> 3.获奖用户可进入官微“百宝箱”查阅奖品信息和领取奖品。</p>
+        <p> 4.广州浚雷智能科技有限公司拥有活动的最终解释权。</p>
+      </van-actionsheet>
+      <van-actionsheet v-model="showFlowerUsage" :actions="actionFlower" class="flowerRule">
+        <p>小红花可以兑换实物、优惠券、抽奖次数等。</p>
+        <p>（程序猿小哥哥正在紧张的开发ing）</p>
+      </van-actionsheet>
+    </div>
+
+    <div id="smileFace" v-show="showSmileFace">
+      <img src="../assets/smile.png" class="smile">
+      <div class="buttonWrapper">
+        <button @click="goPrizeList">我的奖品</button>
+      </div>
+    </div>
 
   </div>
 </template>
@@ -83,8 +96,10 @@
     data () {
 
       return {
+        showPrize: true,
+        showCoupon: false,
         url: 'http://bs.tianaishijie.com/userService',
-        prizeUrl: 'http://oss.tianaishijie.com/',
+        imgUrl: 'http://oss.tianaishijie.com/',
         isSubscibe: null,
         id: null,
         prizeName: '',
@@ -96,7 +111,6 @@
         tel: null,
         mobile: null,
         detail: null,
-
         showRule: false,
         showFlowerUsage: false,
         showFeedBack: false,
@@ -104,6 +118,10 @@
         contact: '',
         userInfo: this.$parent.getUserInfo(),
         recordId: null,
+        supQRCode: null,
+        showPage: true,
+        showSmileFace: false,
+        prize: {},
         actionRule: [
           {
             name: '活动规则',
@@ -123,7 +141,11 @@
     },
 
     methods: {
-
+      goPrizeList () {
+        this.$router.push({
+          path: '/prizeList'
+        })
+      },
       goBaiBaoXiang () {
         this.$router.push({
           path: '/prizeList',
@@ -132,8 +154,8 @@
       goPrize () {
         this.$router.push({
           path: '/setMessage',
-          query:{
-            saveRecordId: this.recordId
+          query: {
+            saveRecordId: this.prize.recordId
           }
         })
       },
@@ -151,6 +173,10 @@
         })
           .then((res) => {
             console.log(res)
+            this.comment = ''
+            this.contact = ''
+            this.$toast('提交成功')
+            this.showFeedBack = false
           })
           .catch((err) => {
             console.log(err)
@@ -167,29 +193,16 @@
       },
 
       goDetail () {
-        // console.log("godetail")
-        let str = {
-          id: this.id,
-          supplierName: this.supplierName,
-          price: this.price,
-          img: this.prize,
-          prizeName: this.prizeName,
-
-          goPrizeName: this.goPrizeName,
-          goPrizePrice: this.goPrizePrice,
-          goPrizeImg: this.goPrizeImg,
-          goSupName: this.goSupName,
-          goSupImg: this.goSupImg,
-          goSupAddress: this.goSupAddress,
-          goSupTel: this.goSupTel,
-          goSupMobile: this.goSupMobile,
-          goSupDetail: this.goSupDetail,
-          saveRecordId: this.recordId
-        }
-        console.log(str)
+        let prizeDto = {}
+        prizeDto.prizeImg = this.imgUrl + this.prize.imgName
+        prizeDto.supplierId = this.prize.supplier.id
+        prizeDto.details = this.prize.details
+        prizeDto.price = this.prize.price
+        prizeDto.prizeName = this.prize.prizeName
+        console.log('goDetail 入参:' + JSON.stringify(prizeDto))
         this.$router.push({
           name: 'detailpage',
-          params: str
+          params: {data: prizeDto}
         })
       },
       getPrize (areaId) {
@@ -198,35 +211,22 @@
           url: this.url + '/draw/' + areaId,
         })
           .then((res) => {
-            this.prize = this.prizeUrl + res.data.data.imgName
-            this.type = res.data.data.type
-            this.id = res.data.data.id
-            this.supplierName = res.data.data.supplierName
-            console.log('request suppliername__' + res.data.data.supplierName)
-            this.price = res.data.data.price
-            this.prizeName = res.data.data.name
-
-            this.goPrizeName = res.data.data.name
-            this.goPrizePrice = res.data.data.price
-            this.goPrizeImg = this.prizeUrl + res.data.data.imgName
-            this.goSupName = res.data.data.supplier.name
-            this.goSupImg = this.prizeUrl + res.data.data.supplier.imgName
-            this.goSupAddress = res.data.data.supplier.address
-            this.goSupTel = res.data.data.supplier.telephone
-            this.goSupMobile = res.data.data.supplier.mobilePhone
-            this.goSupDetail = res.data.data.details
-            this.recordId = res.data.data.recordId
-            console.log("this.recordId----"+this.recordId)
+            this.prize = res.data.data
+            console.log('this.recordId----' + prize.recordId)
           })
           .catch((err) => {
-            console.log(err)
+            if (err.response.status == 403) {
+              this.showSmileFace = true
+              this.showPage = false
+              this.$toast('您今天已抽奖')
+            }
           })
       }
     },
     async created () {
       let params = this.$parent.getParams()
       let areaid = params.areaId
-      alert(areaid)
+      // alert(areaid)
       this.getPrize(areaid)
       this.isSubscibe = await this.$parent.subscibe()
       console.log(JSON.stringify(this.userInfo))
@@ -235,10 +235,37 @@
 </script>
 
 <style scoped>
+  .one {
+    margin-bottom: 10px;
+  }
+
+  .rule, .flowerRule {
+    text-align: left;
+    font-size: 14px;
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .flowerRule {
+    text-align: center;
+    font-size: 14px;
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .textInput {
+    display: block;
+    margin: 0 auto;
+    background: rgb(242, 242, 242);
+    border: none;
+    width: 95%;
+    margin-bottom: 10px;
+  }
+
   #userwrapper {
     width: 100vw;
-    height: 75px;
-    line-height: 75px;
+    height: 60px;
+    line-height: 60px;
     position: absolute;
     top: 0;
     z-index: 10;
@@ -249,9 +276,19 @@
 
   .left, .right {
     width: 100vw;
-    height: 75px;
-    line-height: 75px;
+    height: 60px;
+    line-height: 60px;
     display: inline-block;
+  }
+
+  .left {
+    text-align: left;
+    padding-left: 20px;
+  }
+
+  .right {
+    text-align: right;
+    padding-right: 20px;
   }
 
   .user-pic, .user-name, .flower-number, .x-symble, .flower {
@@ -259,28 +296,14 @@
     vertical-align: middle;
   }
 
-  .flower-number, .x-symble, .flower {
-
-  }
-
   .user-pic {
     width: 11vw;
     border-radius: 50%;
+
   }
 
   .flower {
     width: 5vw;
-  }
-
-  .button {
-    position: absolute;
-    z-index: 999;
-  }
-
-  textarea {
-    display: block;
-    margin: 0 auto;
-    background: rgb(242, 242, 242);
   }
 
   .buttonWrapper {
@@ -298,6 +321,15 @@
   .detailS, .getPrize {
     width: 34.5vw;
     height: 5vh;
+    line-height: 5vh;
+    border-radius: 45px;
+    border: none;
+    background: linear-gradient(rgb(254, 168, 111), rgb(244, 91, 67));
+  }
+
+  #smileFace button {
+    width: 60vw;
+    height: 6vh;
     line-height: 5vh;
     border-radius: 45px;
     border: none;
@@ -342,9 +374,29 @@
 
   }
 
-  .prize {
+  .couponPrize {
 
-    width: 60%;
+    width: 90%;
+
+    height: 70%;
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 45%;
+
+    transform: translate(-50%, -50%);
+
+    display: flex;
+
+    justify-content: space-between;
+
+  }
+
+  .nativePrize {
+
+    width: 90%;
 
     height: 70%;
 
@@ -364,7 +416,7 @@
 
   }
 
-  .prize img {
+  .nativePrize img {
     position: absolute;
     left: 0;
     top: 0;
@@ -376,8 +428,60 @@
 
   }
 
-  #bgimg {
+  .smile {
+    width: 80%;
     position: absolute;
+    left: 50%;
+    top: 30%;
+    transform: translate(-50%, -30%);
+  }
+
+  #couponBoxTextArea {
+    position: absolute;
+    left: 30%;
+    top: 21%;
+    width: 45%;
+    margin: 0;
+  }
+
+  #couponBoxTextArea * {
+    margin: 0;
+  }
+
+  #couponBoxTextArea #prizeName {
+    color: #d31d2c;
+  }
+
+  #couponImg {
+    position: absolute;
+    left: 11%;
+    top: 15%;
+    width: 18%;
+    border-radius: 50%;
+    border: 3px outset #f56448;
+    margin: 0;
+  }
+
+  #couponTemplateImg {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 120%;
+    transform: translate(-54%, -50%);
+    z-index: -1;
+  }
+
+  #couponBox {
+    position: absolute;
+    width: 98%;
+    height: 50%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  #bgimg {
+    position: fixed;
     width: 100%;
     height: 100%;
     top: 0;

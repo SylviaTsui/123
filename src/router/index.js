@@ -6,11 +6,11 @@ import UserData from '@/components/userData'
 import PrizeList from '@/components/prizeList'
 import DetailPage from '@/components/detailPage'
 import SetMessage from '@/components/setMessage'
-import ChildData from '@/components/childData'
 import Test from '@/components/test'
 import LuckyDraw from '@/components/luckyDraw'
 import LetterPrize from '@/components/letterPrize'
 import Subscribe from '@/components/subscribe'
+import SupplierPage from '@/components/supplierPage'
 
 
 Vue.use(Router)
@@ -48,11 +48,6 @@ export default new Router({
       component: SetMessage
     },
     {
-      path: '/childData',
-      name: 'childData',
-      component: ChildData
-    },
-    {
       path: '/helloworld',
       name: 'helloworld',
       component:HelloWorld
@@ -76,6 +71,11 @@ export default new Router({
       path: '/subscribe',
       name: 'subscribe',
       component:Subscribe
+    },
+    {
+      path: '/supplierPage',
+      name: 'supplierPage',
+      component:SupplierPage
     }
   ]
 })
