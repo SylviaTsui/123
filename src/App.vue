@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div ref="app" id="app">
     <router-view/>
   </div>
 </template>
@@ -35,7 +35,7 @@
         if (codeT == null || codeT == '') {
           window.location.href = redirectUri
         }
-        await this.$axios.get(this.url + '/user/getUserInfoByCode', {
+        await this.$axios.get(this.url + '/user/weChatLogin', {
           params: {
             code: codeT
           }
@@ -43,21 +43,21 @@
           .then((res) => {
             this.$cookies.set('USER_TOKEN', res.data.data.token, null, '/', 'tianaishijie.com')
             this.$cookies.set('USER_INFO', JSON.stringify(res.data.data.userInfo), null, '/', 'tianaishijie.com')
-            console.log('userInfo: '+ JSON.stringify(this.getUserInfo()));
+            console.log('userInfo: ' + JSON.stringify(this.getUserInfo()))
             //  alert("这是token_" + this.$cookies.get("USER_TOKEN"))
           })
           .catch((err) => {
             window.location.href = redirectUri
           })
       },
-      getUserInfo(){
-        return JSON.parse(this.$cookies.get("USER_INFO"));
+      getUserInfo () {
+        return JSON.parse(this.$cookies.get('USER_INFO'))
       },
       getParams () {
         return this.params
       },
       async subscibe () {
-        await this.$axios.get(this.url + '/user/getUserInfo')
+        await this.$axios.get(this.url + '/user/getSubscriberUserInfo')
           .then((res) => {
             this.isSubscribe = res.data.data.subscribe
           })
@@ -75,35 +75,51 @@
       console.log('state:' + state)
       console.log('uri:' + uri)
       let userToken = this.$cookies.get('USER_TOKEN')
-      console.log('get user token __' + userToken)
       if (userToken == null || userToken == '') {
-          await this.getToken(state)
+        await this.getToken(state)
       }
       console.log(this.$route.query)
       this.params = {
         'areaId': areaId
       }
+      history.replaceState(null, '', '/')
       this.$router.push({
         path: uri
       })
+    },
+    mounted () {
+      // this.$refs.app.style.height = document.body.clientHeight
+      // this.$refs.app.style.width = document.body.clientWidth
     }
   }
 </script>
 
 <style>
   body {
+    position: fixed;
     margin: 0;
     padding: 0;
+    height: 100%;
+    width: 100%;
   }
 
   #app {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    overflow: hidden;
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
   }
-
+  #app>div{
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
   li {
     list-style: none;
   }

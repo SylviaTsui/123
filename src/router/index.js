@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
 import QRCode from '@/components/qrCode'
 import UserData from '@/components/userData'
 import PrizeList from '@/components/prizeList'
@@ -17,11 +16,6 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
-    {
-      path: '/helloworld',
-      name: 'HelloWorld',
-      component: HelloWorld
-    },
     {
       path: '/qrcode',
       name: 'QRCode',
@@ -46,11 +40,6 @@ export default new Router({
       path: '/setMessage',
       name: 'setMessage',
       component: SetMessage
-    },
-    {
-      path: '/helloworld',
-      name: 'helloworld',
-      component:HelloWorld
     },
     {
       path: '/test',

@@ -14,9 +14,9 @@
         <van-field v-model="formData.postcode" v-bind:disabled="isDisabledCase" placeholder="邮编地址"/>
         <van-field v-model="formData.address" v-bind:disabled="isDisabledCase" placeholder="详细地址：如道路、门牌号、小区、楼栋号、单元室等"/>
         <van-field v-model="formData.babySex" v-bind:disabled="isDisabledCase" placeholder="孩子性别（选填）" readonly
-                   @click="select"/>
+                   @click="showGender"/>
         <van-field v-model="formData.babyAge" v-bind:disabled="isDisabledCase" placeholder="孩子年龄（选填）" readonly
-                   @click="showSelectAge"/>
+                   @click="showAge"/>
       </van-cell-group>
 
       <!--<van-button type="primary" size="large" disabled v-show="hideComfirmButton">确认</van-button>-->
@@ -34,21 +34,20 @@
 
       <van-field v-model="formData.region" v-bind:disabled="isDisabledCase" readonly placeholder="选择地址"
                  @click="regionOnClick"/>
-      <van-field v-model="formData.supplierName"  @click="supplierShow=true" readonly placeholder="选择自提点"/>
+      <van-field v-model="formData.supplierName" v-bind:disabled="isDisabledCase" @click="supplierShow=true" readonly
+                 placeholder="选择自提点"/>
       <!-- 自提 -->
-      <van-field v-model="formData.babySex" v-bind:disabled="isDisabledCase"  readonly placeholder="孩子性别（选填）" readonly
-                 @click="select"/>
-      <van-field v-model="formData.babyAge" v-bind:disabled="isDisabledCase" readonly placeholder="孩子年龄（选填）" readonly
-                 @click="showSelectAge"/>
+      <van-field v-model="formData.babySex" v-bind:disabled="isDisabledCase" readonly placeholder="孩子性别（选填）"
+                 @click="showGender"/>
 
-      <van-picker :columns="regionColumns" @change="regionOnChange" v-bind:loading="regionColumns.load"
+      <van-field v-model="formData.babyAge" v-bind:disabled="isDisabledCase" readonly placeholder="孩子年龄（选填）"
+                 @click="showAge"/>
+
+      <van-picker v-if="!isDisabledCase" :columns="regionColumns" @change="regionOnChange"
+                  v-bind:loading="regionColumns.load"
                   ref="regionPicker" show-toolbar="true" @confirm="regionConfirm" @cancel="regionCancel"
                   v-show="regionColumnsShow"/>
 
-      <!--      <van-actionsheet v-model="genderShow" :actions="getGender"/>
-            <van-picker :columns="columns" @change="onChange" v-show='showAge'/>-->
-
-      <!--<van-button type="primary" size="large" disabled v-show="hideComfirmButton">确认</van-button>-->
       <van-button type="primary" v-bind:disabled="isDisabledCase" v-if="this.isDisabledCase === true" size="large">
         如需修改请联系客服.
       </van-button>
@@ -56,17 +55,16 @@
                   @click="takeBySelf">确定
       </van-button>
 
-      <van-actionsheet v-model="supplierShow" :actions="supplierColumns" @select="supplierOnClick"/>
+      <van-actionsheet v-if="!isDisabledCase" v-model="supplierShow" :actions="supplierColumns" @select="supplierOnClick"/>
     </section>
-    <van-actionsheet v-model="genderShow" :actions="getGender"/>
+    <van-actionsheet v-if="!isDisabledCase" v-model="genderShow" :actions="babyGender"/>
 
-    <van-picker :columns="columns" @change="babyAgeOnChange" v-show='showAge' show-toolbar @confirm="babyAgeConfirm"/>
+    <van-actionsheet v-if="!isDisabledCase" v-model="ageShow" :actions="babyAge"/>
 
   </div>
 </template>
 
 <script>
-  const tempC = {}
   export default {
     name: 'messageExpress',
     data () {
@@ -75,19 +73,24 @@
         isDisabledCase: false,
         url: 'http://bs.tianaishijie.com/userService',
         active: 2,
-        formData: {},
+        formData: {
+          receiverName:null,
+          mobile:null,
+          babySex:null,
+          babyAge:null,
+          postcode:null,
+          address:null,
+          supplierName:null,
+          region:null
+        },
         supplierShow: false,
         deliverType: '',
-        cellphoneSelf: '',
         postCode: '',
         genderShow: false,
         supplierId: null,
-        showAge: false,
-        showComfirmButton: false,
-        hideComfirmButton: true,
+        ageShow: false,
         showExpress: true,
         showTakeBySelf: false,
-        showCityColums: false,
         sentMethod: null,
         deliverInfo: null,
         navArr: [{
@@ -97,20 +100,34 @@
             name: '自提'
           },
         ],
-        getGender: [{
-          name: '请选择孩子性别',
-          callback: this.select
-        },
+        babyGender: [
           {
             name: '男',
-            callback: this.onClick
+            callback: this.genderSelect
           },
           {
             name: '女',
-            callback: this.onClick
+            callback: this.genderSelect
           },
         ],
-        columns: ['0-2岁', '3-5岁', '6-12岁', '13岁以上'],
+        babyAge: [
+          {
+            name: '0-2岁',
+            callback: this.babyAgeSelect
+          },
+          {
+            name: '3-5岁',
+            callback: this.babyAgeSelect
+          },
+          {
+            name: '6-12岁',
+            callback: this.babyAgeSelect
+          },
+          {
+            name: '13岁以上',
+            callback: this.babyAgeSelect
+          }
+        ],
         supplierColumns: [],
         regionColumns: [
           {
@@ -138,6 +155,12 @@
       }
     },
     methods: {
+      showGender () {
+        this.genderShow = true
+      },
+      showAge () {
+        this.ageShow = true
+      },
       babySexConverter (sex) {
         if (sex == '男') {
           return 1
@@ -188,7 +211,6 @@
           }
         })
           .then((res) => {
-            // alert('保存成功!')
             this.$toast('保存成功')
             if (res.status == 204) {
               this.$router.push({
@@ -237,25 +259,13 @@
         console.log('formData.supplier id: ' + this.formData.supplierId + '    formData.supplier Name: ' + this.formData.supplierName)
         this.supplierShow = false
       },
-      onClick (item) {
+      genderSelect (item) {
         this.formData.babySex = item.name
         this.genderShow = false
       },
-      select (item) {
-        this.genderShow = true
-        if (this.genderShow) {
-          this.showAge = false
-        }
-      },
-      showSelectAge () {
-        this.showAge = true
-      },
-      babyAgeOnChange (picker, value, index) {
-
-      },
-      babyAgeConfirm (value, index) {
-        this.formData.babyAge = value
-        this.showAge = false
+      babyAgeSelect (item) {
+        this.formData.babyAge = item.name
+        this.ageShow = false
       },
       fill (deliverType) {
         if (deliverType === 1) {
@@ -269,21 +279,19 @@
 
         } else {
           console.log('未知deliverType:' + deliverType)
-          return false;
+          return false
         }
         if (/^1[34578]\d{9}$/.test(this.formData.mobile) == false) {
           this.$toast('请输入11位数字手机号码!')
           return false
         }
         if (this.formData.receiverName == '' && this.formData.mobile == '' && this.formData.address == '') {
-          // this.showComfirmButton = true
-          // this.hideComfirmButton = false
           return false
         }
         return true
       },
       selectTitle (item) {
-        console.log(this.sentMethod)
+        console.log(item)
         if (item == 0) {
           this.deliverType = 1
           this.showExpress = true
@@ -308,12 +316,12 @@
       },
       async regionConfirm (values, indexs) {
         this.regionColumnsShow = false
-        this.formData.region ="";
+        this.formData.region = ''
 
         for (let i = 0; i < values.length; i++) {
-          this.formData.region += values
+          this.formData.region += values[i]
         }
-
+        console.log('region:  ' + this.formData.region)
         let supplierData = []
         await this.$axios({
           method: 'get',
@@ -400,14 +408,15 @@
         this.regionColumns.load = false
         this.regionColumnsShow = false
       },
-      async getSupplierInfo(){
+      async getSupplierInfo () {
         await this.$axios({
           method: 'get',
           url: this.url + '/supplier/' + this.deliverInfo.supplierId,
         }).then((res) => {
           this.formData.supplierName = res.data.data.area
           this.formData.region = res.data.data.address
-          console.log("formData.supplierName:   "+this.formData.supplierName+"  formData.region:"+this.formData.region)
+          console.log('formData.supplierName:   ' + this.formData.supplierName + '  formData.region:' + this.formData.region)
+
         }).catch((err) => {
           console.log('供应商信息加载失败: ' + err)
         })
@@ -415,19 +424,20 @@
     },
 
     async created () {
+      history.replaceState(null, null, '/#/prizeList')
       console.log('setMessage入参: ' + JSON.stringify(this.$route.params.data))
-      this.deliverInfo = this.$route.params.data;
+      this.deliverInfo = this.$route.params.data
       console.log('setMessage入参: ' + JSON.stringify(this.deliverInfo))
 
       if (this.deliverInfo != null) {
-        this.isDisabledCase = true;
+        this.isDisabledCase = true
         //判断快递还是自提
         if (this.deliverInfo.type === 2) {
-          this.showExpress = false;
-          this.showTakeBySelf = true;
-          this.formData.receiverName = this.deliverInfo.receiverName;
-          this.formData.mobile = this.deliverInfo.mobileNumber;
-          await this.getSupplierInfo();
+          this.showExpress = false
+          this.showTakeBySelf = true
+          this.formData.receiverName = this.deliverInfo.receiverName
+          this.formData.mobile = this.deliverInfo.mobileNumber
+          await this.getSupplierInfo()
         } else if (this.deliverInfo.type === 1) {
           this.showExpress = true
           this.showTakeBySelf = false
@@ -438,11 +448,15 @@
           console.log('快递类型---username:' + this.formData.receiverName + '  cellphone:' + this.formData.mobile + '  postCode:' + this.formData.postcode + '  address:' + this.formData.address)
         }
         this.formData.babySex = this.babySexConverter(this.deliverInfo.babySex)
-        //TODO:转换
         this.formData.babyAge = this.babyAgeConverter(this.deliverInfo.babyAge)
+        console.log('formData:   ' + JSON.stringify(this.formData))
       }
       //地区信息初始化
-      this.regionInit()
+      if (!this.isDisabledCase) {
+        this.regionInit()
+      }
+    },
+     mounted(){
     }
   }
 </script>

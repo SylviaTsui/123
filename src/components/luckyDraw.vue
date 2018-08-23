@@ -31,20 +31,23 @@
       </div>
       <div class="couponPrize">
         <div id="couponBox" v-if="this.prize.type == 3">
-          <img :src="imgUrl + prize.imgName" id="couponImg"/>
-          <div id="couponBoxTextArea">
-            <h3 id="supplierName">{{ this.prize.supplier.name}}</h3>
-            <h5 id="prizeName">{{ this.prize.name}}</h5>
+            <img :src="imgUrl + prize.imgName" id="couponImg"/>
+          <div id="couponBoxSupplierTextArea">
+            <h4 id="supplierName">{{ this.prize.supplier.name}}</h4>
+          </div>
+          <div id="couponBoxPrizeTextArea">
+            <h3 id="prizeName">{{ this.prize.name}}</h3>
           </div>
           <img :src="imgUrl + prize.couponTemplateImgUri" id="couponTemplateImg"/>
         </div>
       </div>
 
       <div class="buttonWrapper" v-if='this.isSubscibe == 1'>
-        <button class="detailS" v-if="this.prize.type == 2" @click="goDetail">查看详情</button>
+        <button class="detailS" v-if="this.prize.type == 2 " @click="goDetail">查看详情</button>
         <button class="getPrize" v-if="this.prize.type == 2" @click="goPrize">领取</button>
         <button class="myPrize" v-if="this.prize.type == 2 || this.prize.type == 3" @click="goPrizeList">我的奖品</button>
-        <button class="detailL" v-if="this.prize.type >= 3" @click="goDetail">查看详情</button>
+        <button class="detailL" v-if="this.prize.type == 3 " @click="goDetail">查看详情</button>
+        <button class="detailL" v-if="this.prize.type > 3" @click="goPrizeList">我的奖品</button>
       </div>
 
       <QRCode class="qrCode" v-if="this.isSubscibe == 0"/>
@@ -209,25 +212,34 @@
         this.$axios({
           method: 'get',
           url: this.url + '/draw/' + areaId,
+        }).then((res) => {
+          this.prize = res.data.data
+          sessionStorage.setItem('luckyDraw_prize', JSON.stringify(this.prize))
+          console.log('Prize' + JSON.stringify(this.prize))
+          console.log('this.recordId----' + this.prize.recordId)
+        }).catch((err) => {
+          if (err.response.status == 403) {
+            this.showSmileFace = true
+            this.showPage = false
+            this.$toast('您今天已抽奖')
+          }
         })
-          .then((res) => {
-            this.prize = res.data.data
-            console.log('this.recordId----' + prize.recordId)
-          })
-          .catch((err) => {
-            if (err.response.status == 403) {
-              this.showSmileFace = true
-              this.showPage = false
-              this.$toast('您今天已抽奖')
-            }
-          })
       }
     },
     async created () {
       let params = this.$parent.getParams()
       let areaid = params.areaId
       // alert(areaid)
-      this.getPrize(areaid)
+      let prePrize = sessionStorage.getItem('luckyDraw_prize')
+      console.log('prePrize' + prePrize)
+      if (prePrize != null && prePrize != '') {
+        this.prize = JSON.parse(prePrize)
+        console.log('localStorage prePrize' + prePrize)
+      } else if (areaid == null && areaid == '') {
+        this.$toast('无法识别该二维码!')
+      } else {
+        this.getPrize(areaid)
+      }
       this.isSubscibe = await this.$parent.subscibe()
       console.log(JSON.stringify(this.userInfo))
     }
@@ -396,7 +408,6 @@
 
     align-items: center;
 
-
   }
 
   .nativePrize img {
@@ -408,8 +419,8 @@
     margin: auto;
     width: 100%;
     z-index: 999;
-    animation: myfirst 1s;
-    -webkit-animation: myfirst 1s; /* Safari 与 Chrome */
+    animation: prizeAnimation 1.5s;
+    -webkit-animation: prizeAnimation 1.5s; /* Safari 与 Chrome */
   }
 
   .smile {
@@ -420,30 +431,33 @@
     transform: translate(-50%, -30%);
   }
 
-  #couponBoxTextArea {
+  #couponBoxSupplierTextArea {
     position: absolute;
-    left: 30%;
-    top: 21%;
+    left: 37%;
+    top: 2%;
     width: 45%;
     margin: 0;
   }
 
-  #couponBoxTextArea * {
+  #couponBoxPrizeTextArea {
+    position: absolute;
+    left: 20%;
+    top: 40%;
+    width: 60%;
     margin: 0;
-  }
-
-  #couponBoxTextArea #prizeName {
-    color: #d31d2c;
+    color: #f14b38;
   }
 
   #couponImg {
     position: absolute;
-    left: 11%;
-    top: 15%;
+    left: 16%;
+    top: 5%;
     width: 18%;
     border-radius: 50%;
     border: 3px outset #f56448;
     margin: 0;
+    border-radius: 50%;
+    margin: auto;
   }
 
   #couponTemplateImg {
@@ -451,7 +465,7 @@
     left: 50%;
     top: 50%;
     width: 120%;
-    transform: translate(-54%, -50%);
+    transform: translate(-50%, -50%);
     z-index: -1;
   }
 
@@ -484,58 +498,58 @@
     font-size: 12px;
   }
 
-  @keyframes myfirst {
+  @keyframes prizeAnimation {
     0% {
-      width: 10%;
-      transform: translate(0, -60%);
+      width: 0%;
     }
-    45% {
-      width: 30%;
-      transform: translate(0, 0);
+    44% {
+      width: 100%;
     }
-    65% {
-      width: 50%;
-      transform: translate(0, -70%);
+    58% {
+      width: 70%;
     }
-    75% {
-      width: 50%;
-      transform: translate(0, -40%);
+    72% {
+      width: 100%;
+    }
+    81% {
+      width: 80%;
     }
     90% {
-      width: 70%;
-      transform: translate(0, -60%);
+      width: 100%;
+    }
+    95% {
+      width: 90%;
     }
     100% {
       width: 100%;
-      transform: translate(0, 0);
     }
   }
 
-  @-webkit-keyframes myfirst /* Safari 与 Chrome */
+  @-webkit-keyframes prizeAnimation /* Safari 与 Chrome */
   {
     0% {
-      width: 10%;
-      transform: translate(0, -60%);
+      width: 0%;
     }
-    45% {
-      width: 30%;
-      transform: translate(0, 0);
+    44% {
+      width: 100%;
     }
-    65% {
-      width: 50%;
-      transform: translate(0, -70%);
+    58% {
+      width: 70%;
     }
-    75% {
-      width: 50%;
-      transform: translate(0, -40%);
+    72% {
+      width: 100%;
+    }
+    81% {
+      width: 80%;
     }
     90% {
-      width: 70%;
-      transform: translate(0, -60%);
+      width: 100%;
+    }
+    95% {
+      width: 90%;
     }
     100% {
       width: 100%;
-      transform: translate(0, 0);
     }
   }
 

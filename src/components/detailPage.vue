@@ -55,6 +55,15 @@
     },
     created () {
       this.prizeDto = this.$route.params.data;
+      if (this.prizeDto !=null && this.prizeDto !=''){
+        sessionStorage.setItem("detailPage_prizeDto", JSON.stringify(this.prizeDto));
+      }else {
+        let prePrizeDto = sessionStorage.getItem("detailPage_prizeDto");
+        if(prePrizeDto != null && prePrizeDto != ''){
+          this.prizeDto = JSON.parse(prePrizeDto);
+        }
+      }
+
       console.log("入参:"+JSON.stringify(this.prizeDto));
       this.$axios({
         method: 'get',
@@ -75,6 +84,7 @@
   #wrapper {
     margin: 0;
     padding: 0;
+    overflow: auto;
   }
 
   .prizeImg {
@@ -101,7 +111,7 @@
     width: 20%;
     border-radius: 5px;
     position: absolute;
-    left: 20px;
+    left: 2%;
     /*margin-right: 5px;*/
   }
 

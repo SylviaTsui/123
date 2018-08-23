@@ -1,46 +1,52 @@
 <template>
   <div>
-    <img src="../assets/baibaoxiang-logo.png" class="baibaoxiangLogo"/>
     <img src="../assets/baibaoxiang.png" class="baibaoxiang"/>
-    <div id="wrapper">
+    <div ref="prizeListWrapper" id="wrapper" @scroll="lazyLoadPage">
+      <div>
+        <img src="../assets/baibaoxiang-logo.png" class="baibaoxiangLogo"/>
+        <div id="itemBox" class="card" v-for="item in prizeData">
+          <div class="left">
+            <span class="getTime">获奖时间:</span>
+            <span class="time">{{item.createTime}}</span>
+          </div>
+          <div class="right">
+            <span class="status" v-if="item.type >= 4">已入账</span>
+            <span class="status" v-if="item.type === 2 && item.status === 0">未领取</span>
+            <span class="status"
+                  v-if="item.type === 2 && item.status === 1 && item.deliverInfo.sentStatus === 0">未配送</span>
+            <span class="status"
+                  v-if="item.type === 2 && item.status === 1 && item.deliverInfo.sentStatus === 1">已配送</span>
+            <span class="status" v-if="item.type === 3 && item.status === 0">未使用</span>
+            <span class="status" v-if="item.type === 3 && item.status === 1">已使用</span>
 
-      <div class="card" v-for="item in prizeData">
-        <div class="left">
-          <span class="getTime">获奖时间:</span>
-          <span class="time">{{item.createTime}}</span>
+          </div>
+          <div class="prize-content">
+            <img class="prizeImg" :src="item.prizeImg"/>
+            <span class="prize-name">{{item.prizeName}}</span>
+          </div>
+          <div class="button-wrapper" v-if="item.type == 2 && item.status == 0">
+            <button class="detail" @click="goDetailPage(item)">奖品详情</button>
+            <button class="take" @click="takePrize(item.id)">领取</button>
+          </div>
+          <div class="button-wrapper" v-if="item.type == 2 && item.status == 1">
+            <button class="detail" @click="goDetailPage(item)">奖品详情</button>
+            <button class="take" @click="goSentMsg(item.deliverInfo)">领取信息</button>
+          </div>
+          <div class="button-wrapper" v-if="item.type == 3 && item.status == 0">
+            <router-link :to="{name:'detailpage',params:{key:item.details}}">
+              <button class="detail" @click="goDetailPage(item)">优惠券详情</button>
+            </router-link>
+            <button class="take">使用</button>
+          </div>
+          <div class="button-wrapper" v-if="item.type == 3 && item.status == 1">
+            <router-link :to="{name:'detailpage',params:{key:item.details}}">
+              <button class="detail" @click="goDetailPage(item)">优惠券详情</button>
+            </router-link>
+            <button class="alreadyTake">使用</button>
+          </div>
         </div>
-        <div class="right">
-          <span class="status" v-if="item.type >= 4">已入账</span>
-          <span class="status" v-if="item.type === 2 && item.status === 0">未领取</span>
-          <span class="status" v-if="item.type === 2 && item.status === 1 && item.deliverInfo.sentStatus === 0">未配送</span>
-          <span class="status" v-if="item.type === 2 && item.status === 1 && item.deliverInfo.sentStatus === 1">已配送</span>
-          <span class="status" v-if="item.type === 3 && item.status === 0">未使用</span>
-          <span class="status" v-if="item.type === 3 && item.status === 1">已使用</span>
-
-        </div>
-        <div class="prize-content">
-          <img class="prizeImg" :src="item.prizeImg"/>
-          <span class="prize-name">{{item.prizeName}}</span>
-        </div>
-        <div class="button-wrapper" v-if="item.type == 2 && item.status == 0">
-          <button class="detail" @click="goDetailPage(item)">奖品详情</button>
-          <button class="take" @click="takePrize(item.id)">领取</button>
-        </div>
-        <div class="button-wrapper" v-if="item.type == 2 && item.status == 1">
-          <button class="detail" @click="goDetailPage(item)">奖品详情</button>
-          <button class="take" @click="goSentMsg(item.deliverInfo)">领取信息</button>
-        </div>
-        <div class="button-wrapper" v-if="item.type == 3 && item.status == 0">
-          <router-link :to="{name:'detailpage',params:{key:item.details}}">
-            <button class="detail" @click="goDetailPage(item)" >优惠券详情</button>
-          </router-link>
-          <button class="take">使用</button>
-        </div>
-        <div class="button-wrapper" v-if="item.type == 3 && item.status == 1">
-          <router-link :to="{name:'detailpage',params:{key:item.details}}">
-            <button class="detail"  @click="goDetailPage(item)" >优惠券详情</button>
-          </router-link>
-          <button class="alreadyTake">使用</button>
+        <div id='loadMore'>
+          <h3 ref="loadMoreText">加载更多.....</h3>
         </div>
       </div>
     </div>
@@ -68,6 +74,8 @@
         supplierId: null,
         supplier: '',
         id: null,
+        page: 1,
+        lazyLoadActive: true
       }
     },
     methods: {
@@ -101,10 +109,10 @@
           }
         })
       },
-      getData () {
+      initData () {
         this.$axios({
           method: 'get',
-          url: this.url + '/prize/0/0'
+          url: this.url + '/prize/0/4'
         })
           .then((res) => {
             for (let i = 0; i < res.data.data.length; i++) {
@@ -158,20 +166,97 @@
                 console.log(this.$cookies.get('USER_TOKEN'))
             }
           })
+      },
+      lazyLoadPage (el) {
+        let scrollTop = this.$refs.prizeListWrapper.scrollTop
+        let clientHeight = this.$refs.prizeListWrapper.clientHeight
+        let scrollHeight = this.$refs.prizeListWrapper.scrollHeight
+        if ((scrollHeight - 5) <= (scrollTop + clientHeight)) {
+          if (this.lazyLoadActive) {
+            let prePrizeDatasLength = this.prizeData.length
+            this.$axios({
+              method: 'get',
+              url: this.url + '/prize/' + (++this.page) + '/4'
+            })
+              .then((res) => {
+                console.log('page: ' + this.page + '  newDataLength:  ' + res.data.data.length)
+                for (let i = 0; i < res.data.data.length; i++) {
+                  let p = res.data.data[i]
+                  let prize = {}
+                  prize.createTime = p.createTime
+                  prize.prizeName = p.prize.name
+                  prize.type = p.prize.type
+                  prize.status = p.status
+                  prize.details = p.prize.details
+                  prize.id = p.id
+                  prize.price = p.prize.price
+                  prize.supplierId = p.prize.supplierId
+                  prize.prizeImg = 'http://oss.tianaishijie.com/' + p.prize.imgName
+
+                  /***********************快递信息*******************/
+                  if ('deliverType' in p) {
+                    prize.deliverInfo = {}
+                    prize.deliverInfo.type = p.deliverType
+                    prize.deliverInfo.sentStatus = p.sentStatus
+                    if ('sentStatus' in prize.deliverInfo) {
+                      if (prize.deliverInfo.type === 1) {
+                        prize.deliverInfo.expressNumber = p.expressNumber
+                        prize.deliverInfo.address = p.address
+                        prize.deliverInfo.postcode = p.postcode
+                      } else if (prize.deliverInfo.type === 2) {
+                        prize.deliverInfo.supplierId = p.supplierId
+                      }
+                      prize.deliverInfo.mobileNumber = p.mobileNumber
+                      prize.deliverInfo.receiverName = p.receiverName
+                      prize.deliverInfo.babySex = p.babySex
+                      prize.deliverInfo.babyAge = p.babyAge
+                    }
+                  }
+                  /***********************快递信息*******************/
+
+                  this.prizeData.push(prize)
+                  this.details = this.prizeData[i].details
+
+                  this.id = p.id
+                  this.sentStatus = p.sentStatus
+                  this.deliverType = p.deliverType
+                  this.name = p.receiverName
+                  this.mobileNumber = p.mobileNumber
+                  this.address = p.address
+                }
+                if (this.prizeData.length - prePrizeDatasLength < 4) {
+                  console.log(this.prizeData.length, prePrizeDatasLength)
+                  this.$refs.loadMoreText.innerHTML = '已经到底啦!'
+                  this.lazyLoadActive = false
+                }
+              }).catch((err) => {
+              console.log('分页信息加载异常: ' + err)
+              this.$refs.loadMoreText.innerHTML = '网络异常!'
+              this.page--
+            })
+          }
+        }
       }
     },
 
     created () {
       this.hostname = window.location.hostname
       this.pathname = window.location.pathname
-      this.getData()
+      this.initData()
+    },
+    mounted () {
+      this.page = 1
     }
   }
 </script>
 
 <style scoped>
-  #wrapper {
 
+  #wrapper {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
   }
 
   .baibaoxiangLogo {
@@ -280,6 +365,12 @@
     font-size: 12px;
   }
 
+  #loadMore {
+    position: relative;
+    color: #666666;
+    z-index: 999;
+  }
+
   @media only screen and (min-width: 767px) {
     .card {
       height: 220px;
@@ -360,8 +451,6 @@
     .detail {
       margin-right: 10px;
     }
-
-
   }
 
 </style>
